@@ -18,7 +18,9 @@ export default {
   } catch { return json({ error: 'Provera ograničenja trenutno nije dostupna.' }, 503) }
   const values = url.searchParams.getAll('amount')
   if (values.length !== 1) return json({ error: 'Navedite tačno jedan parametar amount.' }, 400)
-  const result = convertAmount(values[0]!)
+  const scripts = url.searchParams.getAll('script')
+  if (scripts.length > 1 || (scripts.length && scripts[0] !== 'latn' && scripts[0] !== 'cyrl')) return json({ error: 'Parametar script mora biti latn ili cyrl.' }, 400)
+  const result = convertAmount(values[0]!, scripts[0] === 'cyrl' ? 'cyrl' : 'latn')
   if (!result.ok) return json({ error: result.error }, 400)
   return json({ amount: result.normalized, currency: 'RSD', text: result.text, compact: result.compact })
  },

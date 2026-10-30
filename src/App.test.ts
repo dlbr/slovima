@@ -21,6 +21,17 @@ describe('playground', () => {
   expect(root.querySelector('[role=alert]')?.textContent).toContain('Unesite iznos')
   expect(root.querySelector<HTMLButtonElement>('.result-bottom button')!.disabled).toBe(true)
  })
+ it('updates the example for Cyrillic and copies curl', async () => {
+  const writeText = vi.fn().mockResolvedValue(undefined)
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+  root.querySelector<HTMLInputElement>('input[value=cyrl]')!.click(); await flush()
+  expect(root.querySelector('.result')!.textContent).toContain('десет хиљада')
+  const button = [...root.querySelectorAll('button')].find(b => b.textContent?.includes('Kopiraj curl'))!
+  button.click(); await flush()
+  expect(writeText.mock.calls[0]![0]).toContain('&script=cyrl')
+  writeText.mockRejectedValueOnce(new Error('denied')); button.click(); await flush()
+  expect(root.querySelector('.curl-notice')!.textContent).toContain('nije dostupno')
+ })
  it('reports successful and failed copying', async () => {
   const writeText = vi.fn().mockResolvedValue(undefined)
   Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })

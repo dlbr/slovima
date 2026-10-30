@@ -11,9 +11,9 @@ Podržani su nenegativni iznosi do **999.999.999.999.999,99 RSD**. Unos može ko
 - Srpski zapis: `10.800,50` ili `10800,50`.
 - Decimalnu tačku bez grupisanja hiljada: `10000.20`.
 
-Oblik `10.800` tumači se kao deset hiljada osamsto, a ne kao decimalni broj. Više od dve decimale zaokružuje se na najbližu paru; vrednost tačno na polovini zaokružuje se naviše. Proračun koristi celobrojnu aritmetiku radi preciznosti.
+Dvosmisleni oblici poput `10.800` i `0.005` se odbijaju. Za hiljade koristite `10800` ili `10.800,00`, a za decimalni iznos `0,005`. Više od dve decimale zaokružuje se na najbližu paru; vrednost tačno na polovini zaokružuje se naviše. Proračun koristi celobrojnu aritmetiku radi preciznosti.
 
-Rezultat je dostupan sa razmacima ili kao spojeni zapis. Unos u aplikaciji obrađuje se u pregledaču.
+Rezultat je dostupan na latinici ili ćirilici, sa razmacima ili kao spojeni zapis. Unos u aplikaciji obrađuje se u pregledaču.
 
 ## API
 
@@ -32,7 +32,7 @@ Odgovor:
 }
 ```
 
-Parametar `amount` je obavezan i mora biti naveden tačno jednom. API vraća `400` za neispravan unos, `405` za nepodržanu metodu i `429` kada se prekorači limit. Kod odgovora `429` uključuje zaglavlje `Retry-After: 60`.
+Opcioni parametar `script=cyrl` vraća ćirilični zapis; `script=latn` ili izostavljen parametar vraća latinicu. Parametar `amount` je obavezan i mora biti naveden tačno jednom. API vraća `400` za neispravan unos, `405` za nepodržanu metodu i `429` kada se prekorači limit. Kod odgovora `429` uključuje zaglavlje `Retry-After: 60`.
 
 Limit je **60 zahteva u 60 sekundi po IP adresi**. Brojač je približan i zaseban po Cloudflare lokaciji, pa nije globalni strogi limit. API podržava CORS i vraća `Cache-Control: no-store`. Parametri u URL-u mogu se pojaviti u evidenciji servera ili posrednika.
 

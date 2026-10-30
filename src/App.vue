@@ -3,12 +3,13 @@ import { computed, ref } from 'vue'
 import { convertAmount } from './amount'
 const amount = ref('10.800,50')
 const compact = ref(false)
+const script = ref<'latn' | 'cyrl'>('latn')
 const notice = ref('')
 const curlNotice = ref('')
 const touched = ref(false)
 const examples = ['0,01', '1.000,00', '10.800,50', '99,995']
-const result = computed(() => convertAmount(amount.value))
-const curlCommand = computed(() => `curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=${encodeURIComponent(amount.value).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}'`)
+const result = computed(() => convertAmount(amount.value, script.value))
+const curlCommand = computed(() => `curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=${encodeURIComponent(amount.value).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}${script.value === 'cyrl' ? '&script=cyrl' : ''}'`)
 const responseExample = computed(() => result.value.ok ? JSON.stringify({ amount: result.value.normalized, currency: 'RSD', text: result.value.text, compact: result.value.compact }, null, 2) : JSON.stringify({ error: result.value.error }, null, 2))
 async function copyCurl() {
  try { await navigator.clipboard.writeText(curlCommand.value); curlNotice.value = 'Komanda je kopirana.' }
@@ -34,6 +35,7 @@ async function copy() {
     <p v-if="touched && !result.ok" id="error" class="error" role="alert">{{ result.error }}</p>
     <div class="examples"><span>ISPROBAJTE</span><button v-for="example in examples" :key="example" type="button" @click="amount = example; notice = ''">{{ example }}</button></div>
     <div class="divider"></div>
+    <fieldset class="script-picker"><legend>Pismo zapisa</legend><label><input v-model="script" type="radio" value="latn"> Latinica</label><label><input v-model="script" type="radio" value="cyrl"> Ћирилица</label></fieldset>
     <div class="result-head"><span>SLOVNI ZAPIS</span><label class="toggle"><input v-model="compact" type="checkbox" @change="notice = ''"> Bez razmaka</label></div>
     <div class="result" aria-live="polite">{{ output || 'Ovde će se prikazati slovni zapis.' }}</div>
     <div class="result-bottom"><span>{{ result.ok ? result.normalized + ' RSD' : 'Proverite unos' }}</span><button type="button" :disabled="!result.ok" @click="copy">Kopiraj zapis <span aria-hidden="true">↗</span></button></div>
@@ -46,7 +48,9 @@ async function copy() {
     <pre><code>{{ curlCommand }}</code></pre>
     <p class="curl-notice" aria-live="polite">{{ curlNotice }}</p>
     <p>Odgovor sadrži oba zapisa: <code>text</code> sa razmacima i <code>compact</code> bez razmaka.</p>
+    <div class="code-heading">PRIMER ODGOVORA</div>
     <pre><code>{{ responseExample }}</code></pre>
+    <p>Primer se izračunava u pregledaču i ne prikazuje greške mreže ili ograničenje zahteva.</p>
     <p>Do 60 zahteva u minuti po IP adresi, približno po Cloudflare lokaciji.</p>
    </section>
    <div class="footnote"><span>✳</span><p>Više od dve decimale zaokružujemo na najbližu paru. Iznosi se obrađuju samo u vašem pregledaču.</p></div>

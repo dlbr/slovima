@@ -6,3 +6,5 @@
 .api-example{margin-top:50px}.api-example h2{font:normal 32px 'DM Serif Display',Georgia,serif;margin:12px 0}.api-example p{color:#738078;font-size:13px;line-height:1.6}.api-example pre{background:#20372b;color:#e5f1e5;border-radius:10px;padding:20px;overflow-x:auto;font-size:12px;line-height:1.6}.api-example code{font-family:ui-monospace,monospace}
 
 .code-heading{display:flex;align-items:center;justify-content:space-between;color:#849188;font-size:10px;font-weight:700;letter-spacing:.13em;margin-top:20px}.code-heading button{border:1px solid #d7e1d9;border-radius:7px;background:#fff;color:#315f49;padding:8px 12px;font:600 12px "DM Sans",sans-serif;cursor:pointer}.api-example .curl-notice{min-height:1em;font-size:12px;color:#557764;margin:0}
+
+.script-picker{display:flex;gap:18px;align-items:center;border:0;padding:0;margin:0 0 24px}.script-picker legend{font-size:12px;font-weight:700;color:#6f7f74;margin-bottom:10px}.script-picker label{font-size:13px;color:#315f49;display:flex;align-items:center;gap:6px}.script-picker input{accent-color:#315f49}

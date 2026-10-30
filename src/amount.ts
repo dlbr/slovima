@@ -18,12 +18,17 @@ function words(n: bigint): string[] {
  while (n > 0n) { const c = Number(n % 1000n); if (c) { const part = three(c, i === 1 || i === 3); if (i === 1 && c === 1) part.splice(0, part.length, 'hiljadu'); else if (i) part.push(forms[i]![form(c)]!); chunks.unshift(part) } n /= 1000n; i++ }
  return chunks.flat()
 }
+const cyrillic: Record<string, string> = { a:'а', b:'б', c:'ц', č:'ч', ć:'ћ', d:'д', dž:'џ', đ:'ђ', e:'е', f:'ф', g:'г', h:'х', i:'и', j:'ј', k:'к', l:'л', lj:'љ', m:'м', n:'н', nj:'њ', o:'о', p:'п', r:'р', s:'с', š:'ш', t:'т', u:'у', v:'в', z:'з', ž:'ж' }
+export function toCyrillic(word: string): string {
+ return word.replace(/dž|lj|nj|[a-zčćđšž]/g, letter => cyrillic[letter] ?? letter)
+}
 export type AmountResult = { ok: true; text: string; compact: string; normalized: string } | { ok: false; error: string }
-export function convertAmount(input: string): AmountResult {
+export function convertAmount(input: string, script: 'latn' | 'cyrl' = 'latn'): AmountResult {
  const value = input.trim()
  if (!value) return { ok: false, error: 'Unesite iznos.' }
  if (value.length > 100) return { ok: false, error: 'Unos je predugačak.' }
- const dotDecimal = /^\d+\.\d+$/.test(value) && !/^\d{1,3}\.\d{3}$/.test(value)
+ if (/^\d{1,3}\.\d{3}$/.test(value)) return { ok: false, error: 'Dvosmislen unos. Za hiljade koristite 10.800,00, a za decimale zarez (npr. 0,005).' }
+ const dotDecimal = /^\d+\.\d+$/.test(value)
  const serbian = /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(value)
  if (!dotDecimal && !serbian) return { ok: false, error: 'Unesite iznos kao 10.800,50 ili 10000.20.' }
  const [integer, fraction = ''] = (dotDecimal ? value.replace('.', ',') : value).split(',') as [string, string?]
@@ -35,6 +40,7 @@ export function convertAmount(input: string): AmountResult {
  const dinars = cents / 100n; const para = Number(cents % 100n); const parts: string[] = []
  if (dinars > 0n || para === 0) { const n = Number(dinars); parts.push(...words(dinars), form(n) === 0 ? 'dinar' : 'dinara') }
  if (para) { if (parts.length) parts.push('i'); parts.push(...three(para, true), form(para) === 0 ? 'para' : form(para) === 1 ? 'pare' : 'para') }
- const text = parts.join(' ')
- return { ok: true, text, compact: parts.join(''), normalized: `${dinars.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${String(para).padStart(2, '0')}` }
+ const rendered = script === 'cyrl' ? parts.map(toCyrillic) : parts
+ const text = rendered.join(' ')
+ return { ok: true, text, compact: rendered.join(''), normalized: `${dinars.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${String(para).padStart(2, '0')}` }
 }
