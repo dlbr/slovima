@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 test('examples, rounding, compact form and validation', async ({ page }) => {
  await page.goto('/')
- await expect(page.getByText("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10.800%2C50&script=latn&space=true'")).toBeVisible()
+ await expect(page.getByText("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10.800,50&script=latn&space=true'")).toBeVisible()
  await expect(page.getByText('Polje', { exact: false }).first()).toBeVisible()
  await expect(page.getByText('za ćirilicu.', { exact: false })).toBeVisible()
  await expect(page.locator('.api-example pre').nth(1)).toContainText('desethiljadaosamstodinaraipedesetpara')
@@ -9,7 +9,7 @@ test('examples, rounding, compact form and validation', async ({ page }) => {
  await expect(page.locator('.result')).toHaveText('deset hiljada osamsto dinara i pedeset para')
  await page.getByRole('button', { name: '99,995' }).click()
  await expect(field).toHaveValue('99,995')
- await expect(page.locator('.api-example pre').first()).toContainText('amount=99%2C995')
+ await expect(page.locator('.api-example pre').first()).toContainText('amount=99,995')
  await expect(page.locator('.api-example pre').nth(1)).toContainText('sto dinara')
  await expect(page.locator('.result')).toHaveText('sto dinara')
  await page.getByLabel('Ћирилица').check()
@@ -43,7 +43,7 @@ test('copies the selected output', async ({ page, context }) => {
  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('deset hiljada osamsto dinara i pedeset para')
  await page.getByRole('button', { name: 'Kopiraj curl' }).click()
  await expect(page.getByText('Komanda je kopirana.')).toBeVisible()
- expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10.800%2C50&script=latn&space=true'")
+ expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10.800,50&script=latn&space=true'")
 })
 test('small screen keeps controls usable', async ({ page }) => {
  await page.setViewportSize({ width: 320, height: 700 }); await page.goto('/')

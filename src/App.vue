@@ -9,7 +9,7 @@ const curlNotice = ref('')
 const touched = ref(false)
 const examples = ['0,01', '1.000,00', '10.800,50', '99,995']
 const result = computed(() => convertAmount(amount.value, script.value))
-const curlCommand = computed(() => `curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=${encodeURIComponent(amount.value).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}&script=${script.value}&space=${!compact.value}'`)
+const curlCommand = computed(() => `curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=${encodeURIComponent(amount.value).replace(/%2C/g, ',').replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}&script=${script.value}&space=${!compact.value}'`)
 const responseExample = computed(() => result.value.ok ? JSON.stringify({ amount: result.value.normalized, currency: 'RSD', text: compact.value ? result.value.compact : result.value.text, compact: result.value.compact }, null, 2) : JSON.stringify({ error: result.value.error }, null, 2))
 async function copyCurl() {
  try { await navigator.clipboard.writeText(curlCommand.value); curlNotice.value = 'Komanda je kopirana.' }
