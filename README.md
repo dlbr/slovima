@@ -18,7 +18,7 @@ Rezultat je dostupan na latinici ili ćirilici, sa razmacima ili kao spojeni zap
 ## API
 
 ```bash
-curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10000.20&script=latn'
+curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10000.20&script=latn&space=true'
 ```
 
 Odgovor:
@@ -32,7 +32,9 @@ Odgovor:
 }
 ```
 
-Opcioni parametar `script=cyrl` vraća ćirilični zapis; `script=latn` ili izostavljen parametar vraća latinicu. Parametar `amount` je obavezan i mora biti naveden tačno jednom. API vraća `400` za neispravan unos, `405` za nepodržanu metodu i `429` kada se prekorači limit. Kod odgovora `429` uključuje zaglavlje `Retry-After: 60`.
+Query parametri se u URL-u šalju kao tekst: `amount` je string, `script` je enum (`latn` ili `cyrl`), a `space` je boolean (`true` ili `false`).
+
+Opcioni parametar `space=false` vraća `text` bez razmaka; `space=true` (podrazumevano) vraća ga sa razmacima. Polje `compact` uvek je bez razmaka. Opcioni parametar `script=cyrl` vraća ćirilični zapis; `script=latn` ili izostavljen parametar vraća latinicu. Parametar `amount` je obavezan i mora biti naveden tačno jednom. API vraća `400` za neispravan unos, `405` za nepodržanu metodu i `429` kada se prekorači limit. Kod odgovora `429` uključuje zaglavlje `Retry-After: 60`.
 
 Limit je **60 zahteva u 60 sekundi po IP adresi**. Brojač je približan i zaseban po Cloudflare lokaciji, pa nije globalni strogi limit. API podržava CORS i vraća `Cache-Control: no-store`. Parametri u URL-u mogu se pojaviti u evidenciji servera ili posrednika.
 

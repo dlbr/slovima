@@ -20,8 +20,10 @@ export default {
   if (values.length !== 1) return json({ error: 'Navedite tačno jedan parametar amount.' }, 400)
   const scripts = url.searchParams.getAll('script')
   if (scripts.length > 1 || (scripts.length && scripts[0] !== 'latn' && scripts[0] !== 'cyrl')) return json({ error: 'Parametar script mora biti latn ili cyrl.' }, 400)
+  const spaces = url.searchParams.getAll('space')
+  if (spaces.length > 1 || (spaces.length && spaces[0] !== 'true' && spaces[0] !== 'false')) return json({ error: 'Parametar space mora biti true ili false.' }, 400)
   const result = convertAmount(values[0]!, scripts[0] === 'cyrl' ? 'cyrl' : 'latn')
   if (!result.ok) return json({ error: result.error }, 400)
-  return json({ amount: result.normalized, currency: 'RSD', text: result.text, compact: result.compact })
+  return json({ amount: result.normalized, currency: 'RSD', text: spaces[0] === 'false' ? result.compact : result.text, compact: result.compact })
  },
 }
