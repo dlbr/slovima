@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
 test('examples, rounding, compact form and validation', async ({ page }) => {
  await page.goto('/')
- await expect(page.getByText("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10.800%2C50'")).toBeVisible()
+ await expect(page.getByText("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10.800%2C50&script=latn'")).toBeVisible()
  await expect(page.getByText('Odgovor sadrži oba zapisa:', { exact: false })).toBeVisible()
+ await expect(page.getByText('za ćirilicu.', { exact: false })).toBeVisible()
  await expect(page.locator('.api-example pre').nth(1)).toContainText('desethiljadaosamstodinaraipedesetpara')
  const field = page.getByLabel('Iznos u dinarima')
  await expect(page.locator('.result')).toHaveText('deset hiljada osamsto dinara i pedeset para')
@@ -40,7 +41,7 @@ test('copies the selected output', async ({ page, context }) => {
  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('deset hiljada osamsto dinara i pedeset para')
  await page.getByRole('button', { name: 'Kopiraj curl' }).click()
  await expect(page.getByText('Komanda je kopirana.')).toBeVisible()
- expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10.800%2C50'")
+ expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10.800%2C50&script=latn'")
 })
 test('small screen keeps controls usable', async ({ page }) => {
  await page.setViewportSize({ width: 320, height: 700 }); await page.goto('/')

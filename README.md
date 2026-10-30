@@ -18,7 +18,7 @@ Rezultat je dostupan na latinici ili ćirilici, sa razmacima ili kao spojeni zap
 ## API
 
 ```bash
-curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10000.20'
+curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10000.20&script=latn'
 ```
 
 Odgovor:

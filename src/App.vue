@@ -9,7 +9,7 @@ const curlNotice = ref('')
 const touched = ref(false)
 const examples = ['0,01', '1.000,00', '10.800,50', '99,995']
 const result = computed(() => convertAmount(amount.value, script.value))
-const curlCommand = computed(() => `curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=${encodeURIComponent(amount.value).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}${script.value === 'cyrl' ? '&script=cyrl' : ''}'`)
+const curlCommand = computed(() => `curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=${encodeURIComponent(amount.value).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}&script=${script.value}'`)
 const responseExample = computed(() => result.value.ok ? JSON.stringify({ amount: result.value.normalized, currency: 'RSD', text: result.value.text, compact: result.value.compact }, null, 2) : JSON.stringify({ error: result.value.error }, null, 2))
 async function copyCurl() {
  try { await navigator.clipboard.writeText(curlCommand.value); curlNotice.value = 'Komanda je kopirana.' }
@@ -43,7 +43,8 @@ async function copy() {
    </section>
    <section class="api-example" aria-labelledby="api-title">
     <div class="eyebrow">ZA PROGRAMERE</div><h2 id="api-title">Koristite API</h2>
-    <p>Pošaljite iznos kao parametar <code>amount</code>. Odgovor je u JSON formatu.</p>
+    <p>Pošaljite GET zahtev sa sledećim parametrima. Odgovor je u JSON formatu.</p>
+    <dl class="api-params"><div><dt><code>amount</code> <span>obavezan</span></dt><dd>Iznos u dinarima, npr. <code>10000.20</code> ili <code>10.000,20</code>.</dd></div><div><dt><code>script</code> <span>opciono</span></dt><dd><code>latn</code> za latinicu (podrazumevano) ili <code>cyrl</code> za ćirilicu.</dd></div></dl>
     <div class="code-heading"><span>ZAHTEV</span><button type="button" @click="copyCurl">Kopiraj curl</button></div>
     <pre><code>{{ curlCommand }}</code></pre>
     <p class="curl-notice" aria-live="polite">{{ curlNotice }}</p>
