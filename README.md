@@ -1,9 +1,69 @@
-# U paru
+# Slovima
 
-Samostalna statička Vue 3.6 Vapor aplikacija, zasnovana na gistu. `npm install`, `npm test`, `npm run build`; sadržaj `dist/` je spreman za statički hosting. Vue 3.6 je trenutno RC.
+Pretvorite iznos u dinarima u slovni zapis na srpskom jeziku. Aplikacija radi u pregledaču, a isti pretvarač dostupan je i kao javni API.
 
-Unos podržava srpski format (tačka za hiljade, zarez za decimale) i decimalnu tačku bez grupisanja (10000.20). Dvosmislen oblik 10.800 tumači se kao grupisanje hiljada, nenegativni iznosi do 999.999.999.999.999,99 RSD; decimale se zaokružuju half-up na paru, bez floating-point greške. Neispravni i dvosmisleni unosi se odbijaju. Slovni zapis koristi srpska slova i pravilne oblike; opcija bez razmaka odgovara formi iz gista. Gist sadrži protivrečne očekivane rezultate i neispravnosti (npr. 0,150, 0,125 i neispravni sufiksi), ovde su ispravljeni.
+**[Otvori aplikaciju](https://slovima.dlbr.cloud)**
 
-Provere: `npm run test:coverage` (Vitest, prag 90% za linije, izraze, funkcije i grane) i `npm run test:e2e` (Playwright/Chromium; preglednik mora biti instaliran sa `npx playwright install chromium`). Coverage obuhvata konverziju i Vue komponentu, dok je početni `main.ts` koji samo pokreće aplikaciju izostavljen; pokretanje je obuhvaćeno E2E testovima.
+## Unos iznosa
 
-API: `GET /api/v1/convert?amount=10000.20` vraća JSON `amount`, `currency`, `text`, `compact`. Jedan `amount` je obavezan; neispravan unos vraća 400, nedozvoljena metoda 405, a prekoračen limit 429 sa `Retry-After: 60`. API dozvoljava CORS i ne kešira odgovore. Limit je 60 zahteva po IP adresi u 60 sekundi, približan i zaseban po Cloudflare lokaciji. Cloudflare Rate Limiting nije globalni strogi brojač. Parametri u URL-u mogu biti vidljivi u server/proxy logovima.
+Podržani su nenegativni iznosi do **999.999.999.999.999,99 RSD**. Unos može koristiti:
+
+- Srpski zapis: `10.800,50` ili `10800,50`.
+- Decimalnu tačku bez grupisanja hiljada: `10000.20`.
+
+Oblik `10.800` tumači se kao deset hiljada osamsto, a ne kao decimalni broj. Više od dve decimale zaokružuje se na najbližu paru; vrednost tačno na polovini zaokružuje se naviše. Proračun koristi celobrojnu aritmetiku radi preciznosti.
+
+Rezultat je dostupan sa razmacima ili kao spojeni zapis. Unos u aplikaciji obrađuje se u pregledaču.
+
+## API
+
+```bash
+curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10000.20'
+```
+
+Odgovor:
+
+```json
+{
+  "amount": "10.000,20",
+  "currency": "RSD",
+  "text": "deset hiljada dinara i dvadeset para",
+  "compact": "desethiljadadinaraidvadesetpara"
+}
+```
+
+Parametar `amount` je obavezan i mora biti naveden tačno jednom. API vraća `400` za neispravan unos, `405` za nepodržanu metodu i `429` kada se prekorači limit. Kod odgovora `429` uključuje zaglavlje `Retry-After: 60`.
+
+Limit je **60 zahteva u 60 sekundi po IP adresi**. Brojač je približan i zaseban po Cloudflare lokaciji, pa nije globalni strogi limit. API podržava CORS i vraća `Cache-Control: no-store`. Parametri u URL-u mogu se pojaviti u evidenciji servera ili posrednika.
+
+## Lokalni razvoj
+
+Potrebni su Node.js i npm. Instalirajte zavisnosti i pokrenite razvojni server:
+
+```bash
+npm ci
+npm run dev
+```
+
+Aplikacija koristi Vue 3.6 Vapor, koji je u ovoj verziji *release candidate*. Vite razvojni server prikazuje stranicu; API se izvršava u Cloudflare Worker okruženju.
+
+## Testiranje i build
+
+```bash
+npm test
+npm run test:coverage
+npx playwright install chromium
+npm run test:e2e
+npm run build
+```
+
+Coverage ima prag od 90% za linije, izraze, funkcije i grane. Obuhvata pretvarač, komponentu i Worker; početni `main.ts` obuhvaćen je E2E testovima pokretanja. Produkcioni statički fajlovi nalaze se u `dist/`.
+
+## Deploy
+
+Worker koristi konfiguraciju iz `wrangler.jsonc` i služi sadržaj iz `dist/`. Nakon prijavljivanja na Cloudflare nalog i podešavanja domena i rate-limit bindinga, objavite build pomoću Wrangler CLI-ja:
+
+```bash
+npm run build
+npx wrangler deploy
+```
