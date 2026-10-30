@@ -4,9 +4,16 @@ import { convertAmount } from './amount'
 const amount = ref('10.800,50')
 const compact = ref(false)
 const notice = ref('')
+const curlNotice = ref('')
 const touched = ref(false)
 const examples = ['0,01', '1.000,00', '10.800,50', '99,995']
 const result = computed(() => convertAmount(amount.value))
+const curlCommand = computed(() => `curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=${encodeURIComponent(amount.value).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}'`)
+const responseExample = computed(() => result.value.ok ? JSON.stringify({ amount: result.value.normalized, currency: 'RSD', text: result.value.text, compact: result.value.compact }, null, 2) : JSON.stringify({ error: result.value.error }, null, 2))
+async function copyCurl() {
+ try { await navigator.clipboard.writeText(curlCommand.value); curlNotice.value = 'Komanda je kopirana.' }
+ catch { curlNotice.value = 'Kopiranje nije dostupno. Označite komandu i kopirajte je ručno.' }
+}
 const output = computed(() => result.value.ok ? (compact.value ? result.value.compact : result.value.text) : '')
 async function copy() {
  if (!output.value) return
@@ -23,7 +30,7 @@ async function copy() {
    <p class="intro">Pretvorite iznos u slovni zapis, spreman za fakture, ugovore i drugu dokumentaciju.</p>
    <section class="card" aria-label="Pretvaranje iznosa">
     <label for="amount">Iznos u dinarima</label>
-    <div class="input-wrap"><input id="amount" v-model="amount" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" :aria-describedby="touched && !result.ok ? 'error' : undefined" :aria-invalid="touched && !result.ok" @input="notice = ''; touched = false" @blur="touched = true"><span>RSD</span></div>
+    <div class="input-wrap"><input id="amount" v-model="amount" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" :aria-describedby="touched && !result.ok ? 'error' : undefined" :aria-invalid="touched && !result.ok" @input="notice = ''; curlNotice = ''; touched = false" @blur="touched = true"><span>RSD</span></div>
     <p v-if="touched && !result.ok" id="error" class="error" role="alert">{{ result.error }}</p>
     <div class="examples"><span>ISPROBAJTE</span><button v-for="example in examples" :key="example" type="button" @click="amount = example; notice = ''">{{ example }}</button></div>
     <div class="divider"></div>
@@ -35,14 +42,11 @@ async function copy() {
    <section class="api-example" aria-labelledby="api-title">
     <div class="eyebrow">ZA PROGRAMERE</div><h2 id="api-title">Koristite API</h2>
     <p>Pošaljite iznos kao parametar <code>amount</code>. Odgovor je u JSON formatu.</p>
-    <pre><code>curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10000.20'</code></pre>
+    <div class="code-heading"><span>ZAHTEV</span><button type="button" @click="copyCurl">Kopiraj curl</button></div>
+    <pre><code>{{ curlCommand }}</code></pre>
+    <p class="curl-notice" aria-live="polite">{{ curlNotice }}</p>
     <p>Odgovor sadrži oba zapisa: <code>text</code> sa razmacima i <code>compact</code> bez razmaka.</p>
-    <pre><code>{
-  "amount": "10.000,20",
-  "currency": "RSD",
-  "text": "deset hiljada dinara i dvadeset para",
-  "compact": "desethiljadadinaraidvadesetpara"
-}</code></pre>
+    <pre><code>{{ responseExample }}</code></pre>
     <p>Do 60 zahteva u minuti po IP adresi, približno po Cloudflare lokaciji.</p>
    </section>
    <div class="footnote"><span>✳</span><p>Više od dve decimale zaokružujemo na najbližu paru. Iznosi se obrađuju samo u vašem pregledaču.</p></div>
