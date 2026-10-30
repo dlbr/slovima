@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "slovima",
+  "compatibility_date": "2026-10-30",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "slovima.dlbr.cloud",
+      "custom_domain": true
+    }
+  ],
+  "main": "src/worker.ts",
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "7852369041",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ]
+}
