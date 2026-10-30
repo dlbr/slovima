@@ -36,6 +36,13 @@ async function copy() {
     <div class="eyebrow">ZA PROGRAMERE</div><h2 id="api-title">Koristite API</h2>
     <p>Pošaljite iznos kao parametar <code>amount</code>. Odgovor je u JSON formatu.</p>
     <pre><code>curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10000.20'</code></pre>
+    <p>Odgovor sadrži oba zapisa: <code>text</code> sa razmacima i <code>compact</code> bez razmaka.</p>
+    <pre><code>{
+  "amount": "10.000,20",
+  "currency": "RSD",
+  "text": "deset hiljada dinara i dvadeset para",
+  "compact": "desethiljadadinaraidvadesetpara"
+}</code></pre>
     <p>Do 60 zahteva u minuti po IP adresi, približno po Cloudflare lokaciji.</p>
    </section>
    <div class="footnote"><span>✳</span><p>Više od dve decimale zaokružujemo na najbližu paru. Iznosi se obrađuju samo u vašem pregledaču.</p></div>

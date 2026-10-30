@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test'
 test('examples, rounding, compact form and validation', async ({ page }) => {
  await page.goto('/')
  await expect(page.getByText("curl 'https://slovima.dlbr.cloud/api/v1/convert?amount=10000.20'")).toBeVisible()
+ await expect(page.getByText('Odgovor sadrži oba zapisa:', { exact: false })).toBeVisible()
+ await expect(page.locator('.api-example pre').nth(1)).toContainText('desethiljadadinaraidvadesetpara')
  const field = page.getByLabel('Iznos u dinarima')
  await expect(page.locator('.result')).toHaveText('deset hiljada osamsto dinara i pedeset para')
  await page.getByRole('button', { name: '99,995' }).click()
