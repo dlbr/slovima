@@ -19,15 +19,11 @@ describe('conversion API', () => {
   expect((await worker.fetch(request('/api/v1/convert?amount=1&script=latn'), env)).status).toBe(200)
   for (const query of ['script=other', 'script=', 'script=cyrl&script=latn']) expect((await worker.fetch(request('/api/v1/convert?amount=1&'+query), env)).status).toBe(400)
  })
- it('honors space and rejects invalid or repeated values', async () => {
-  for (const script of ['latn', 'cyrl']) {
-   const response = await worker.fetch(request(`/api/v1/convert?amount=1000&script=${script}&space=false`), env)
-   const body = await response.json() as { text: string, compact: string }
-   expect(body.text).toBe(body.compact); expect(body.text).not.toContain(' ')
-   const spaced = await worker.fetch(request(`/api/v1/convert?amount=1000&script=${script}&space=true`), env)
-   expect((await spaced.json() as { text: string }).text).toContain(' ')
+ it('rejects removed space parameter rather than silently changing output', async () => {
+  for (const value of ['true', 'false', '']) {
+   const res = await worker.fetch(request(`/api/v1/convert?amount=1000&space=${value}`), env)
+   expect(res.status).toBe(400); expect(await res.json()).toMatchObject({ error: expect.stringContaining('više nije podržan') })
   }
-  for (const query of ['space=', 'space=0', 'space=True', 'space=true&space=false']) expect((await worker.fetch(request('/api/v1/convert?amount=1&'+query),env)).status).toBe(400)
  })
  it('enforces the limit and fails closed when it is unavailable', async () => {
   limiter.mockResolvedValueOnce({success:false}); const blocked = await worker.fetch(request('/api/v1/convert?amount=1'),env)
